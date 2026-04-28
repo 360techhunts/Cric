@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cricket Platform - Client Demo</title>
+    <title>ProCricket | IPL 2026 Dashboard</title>
     <style>
         :root {
             --primary: #0f172a;
             --secondary: #3b82f6;
             --accent: #f59e0b;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
             --card-bg: #ffffff;
             --text-dark: #1e293b;
             --text-light: #64748b;
             --live: #ef4444;
             --win: #10b981;
+            --fancy-bg: #f8fafc;
+            --lay: #fca5a5;
+            --back: #93c5fd;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -34,49 +37,47 @@
 
         /* Controls */
         .controls { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .ipl-toggle { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; font-size: 0.95rem; background: white; padding: 0.5rem 1rem; border-radius: 99px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        /* Toggle Switch CSS */
-        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(18px); }
+        .date-display { font-weight: bold; color: var(--text-light); font-size: 0.9rem; }
 
         /* Grid & Cards */
         .container { max-width: 1200px; margin: 0 auto 2rem; padding: 0 1rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
 
-        .match-card { background: var(--card-bg); border-radius: 16px; padding: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-top: 4px solid var(--text-light); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .match-card { background: var(--card-bg); border-radius: 16px; padding: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-top: 4px solid var(--text-light); display: flex; flex-direction: column; overflow: hidden; }
         .match-card.live { border-top-color: var(--live); }
-        .match-card.ipl { border-top-color: var(--accent); }
+        .match-card.ipl { border-top-color: var(--secondary); }
 
         .card-header { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; }
         .badge { padding: 0.2rem 0.6rem; border-radius: 4px; }
         .badge.live { background: #fee2e2; color: var(--live); animation: pulse 2s infinite; }
-        .badge.ipl { background: #fef3c7; color: #d97706; }
+        .badge.ipl { background: #e0f2fe; color: #0284c7; }
         
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
         /* Scores */
         .team-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-        .team-name { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+        .team-name { font-size: 1.1rem; font-weight: 700; }
         .score-box { text-align: right; }
         .runs { font-size: 1.2rem; font-weight: 700; }
         .overs { font-size: 0.85rem; color: var(--text-light); }
-        
         .crr { font-size: 0.85rem; color: var(--secondary); font-weight: 600; margin-top: 0.25rem; }
 
-        .match-status { font-size: 0.9rem; color: var(--text-dark); margin: 1rem 0; padding: 0.75rem; background: var(--bg); border-radius: 8px; font-weight: 600; text-align: center; }
+        .match-status { font-size: 0.85rem; color: var(--text-dark); margin: 0.5rem 0 1rem; padding: 0.75rem; background: var(--bg); border-radius: 8px; font-weight: 600; text-align: center; }
+
+        /* Inline Fancy Odds Section */
+        .fancy-section { background: var(--fancy-bg); border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; }
+        .fancy-header { font-size: 0.75rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
+        .fancy-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; font-size: 0.9rem; font-weight: 600; }
+        .fancy-row:last-child { margin-bottom: 0; }
+        .fancy-odds { display: flex; gap: 0.5rem; }
+        .odds-box { padding: 0.2rem 0.75rem; border-radius: 4px; min-width: 50px; text-align: center; font-size: 0.85rem; font-weight: 700; border: 1px solid rgba(0,0,0,0.05); }
+        .odds-box.lay { background: var(--lay); color: #991b1b; }
+        .odds-box.back { background: var(--back); color: #1e3a8a; }
 
         /* Action Buttons */
         .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: auto; }
-        .btn { padding: 0.6rem; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-outline { background: transparent; border: 1px solid #cbd5e1; color: var(--text-dark); }
-        .btn-outline:hover { background: var(--bg); }
-        .btn-fancy { grid-column: span 2; background: #1e293b; color: var(--accent); }
-        .btn-fancy:hover { background: #0f172a; }
+        .btn { padding: 0.6rem; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; background: transparent; border: 1px solid #cbd5e1; color: var(--text-dark); }
+        .btn:hover { background: var(--bg); }
 
         /* Modal Overlay */
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px); }
@@ -84,48 +85,25 @@
         @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
         .modal-header { padding: 1.25rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { font-size: 1.2rem; }
         .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
-        
         .modal-body { padding: 1.25rem; overflow-y: auto; flex: 1; background: var(--bg); }
-
-        /* Modal Inner Data Styles */
-        .bbb-row { background: white; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; display: flex; gap: 1rem; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .ball-badge { background: var(--primary); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0; }
-        .ball-badge.four { background: var(--secondary); }
-        .ball-badge.six { background: var(--win); }
-        .ball-badge.wicket { background: var(--live); }
-
-        .odds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .odds-card { background: white; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0; }
-        .odds-card h4 { color: var(--text-light); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; }
-        .odds-values { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; }
-        .lay { color: var(--live); }
-        .back { color: var(--secondary); }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-top">
-            <h1>🏏 PRO<span>CRICKET</span> Demo</h1>
+            <h1>🏏 PRO<span>CRICKET</span></h1>
         </div>
         <div class="nav-tabs" id="tabs">
-            <div class="tab active" onclick="setFilter('live')">🔴 Live Now</div>
-            <div class="tab" onclick="setFilter('today')">📅 Today</div>
+            <div class="tab active" onclick="setFilter('today')">📅 Today / Live</div>
             <div class="tab" onclick="setFilter('upcoming')">🗓️ Upcoming</div>
             <div class="tab" onclick="setFilter('past')">⏪ Results</div>
         </div>
     </header>
 
     <div class="controls">
-        <div class="ipl-toggle">
-            <label class="switch">
-                <input type="checkbox" id="iplToggle" onchange="renderUI()">
-                <span class="slider"></span>
-            </label>
-            <span>IPL Matches Only</span>
-        </div>
+        <div class="date-display" id="current-date-display">System Date: Loading...</div>
     </div>
 
     <div class="container">
@@ -135,7 +113,7 @@
     <div id="modal" class="modal" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 id="modal-title">Data Viewer</h2>
+                <h2 id="modal-title">Match Info</h2>
                 <button class="close-btn" onclick="document.getElementById('modal').style.display='none'">&times;</button>
             </div>
             <div id="modal-body" class="modal-body"></div>
@@ -143,66 +121,30 @@
     </div>
 
     <script>
-        // --- 1. MOCK DATA ENGINE ---
-        const mockMatches = [
-            {
-                id: "m1", type: "live", isIpl: true, date: "Today",
-                t1: "Chennai Super Kings", t1Short: "CSK", t1Score: "185/4", t1Overs: "18.2",
-                t2: "Mumbai Indians", t2Short: "MI", t2Score: "", t2Overs: "",
-                status: "CSK elected to bat first", venue: "Wankhede Stadium, Mumbai"
-            },
-            {
-                id: "m2", type: "live", isIpl: false, date: "Today",
-                t1: "Australia", t1Short: "AUS", t1Score: "278/8", t1Overs: "50.0",
-                t2: "India", t2Short: "IND", t2Score: "145/3", t2Overs: "24.1",
-                status: "India need 134 runs in 155 balls", venue: "MCG, Melbourne"
-            },
-            {
-                id: "m3", type: "today", isIpl: true, date: "Today",
-                t1: "Royal Challengers", t1Short: "RCB", t1Score: "", t1Overs: "",
-                t2: "Kolkata Knight Riders", t2Short: "KKR", t2Score: "", t2Overs: "",
-                status: "Match starts at 19:30 IST", venue: "M. Chinnaswamy, Bengaluru"
-            },
-            {
-                id: "m4", type: "upcoming", isIpl: true, date: "Tomorrow",
-                t1: "Delhi Capitals", t1Short: "DC", t1Score: "", t1Overs: "",
-                t2: "Sunrisers Hyderabad", t2Short: "SRH", t2Score: "", t2Overs: "",
-                status: "Match scheduled", venue: "Arun Jaitley Stadium, Delhi"
-            },
-            {
-                id: "m5", type: "upcoming", isIpl: false, date: "Tomorrow",
-                t1: "England", t1Short: "ENG", t1Score: "", t1Overs: "",
-                t2: "South Africa", t2Short: "RSA", t2Score: "", t2Overs: "",
-                status: "T20 International", venue: "Lord's, London"
-            },
-            {
-                id: "m6", type: "past", isIpl: true, date: "Yesterday",
-                t1: "Gujarat Titans", t1Short: "GT", t1Score: "210/5", t1Overs: "20.0",
-                t2: "Rajasthan Royals", t2Short: "RR", t2Score: "214/4", t2Overs: "19.3",
-                status: "RR won by 6 wickets", venue: "Narendra Modi Stadium, Ahmedabad"
-            }
+        // --- API KEY CONFIGURATION ---
+        const API_KEY = '02be0af2-19ea-4548-9a8e-b8dd77779d7c'; 
+
+        // --- 1. DYNAMIC IPL 2026 MATCH LIST ---
+        // This acts as your database. The JS will automatically sort them based on your current real-world date.
+        const matchSchedule = [
+            { date: "2026-04-26", t1: "Chennai Super Kings", t1Short: "CSK", t2: "Mumbai Indians", t2Short: "MI", venue: "Wankhede Stadium, Mumbai", isIpl: true },
+            { date: "2026-04-27", t1: "Royal Challengers Bengaluru", t1Short: "RCB", t2: "Kolkata Knight Riders", t2Short: "KKR", venue: "M. Chinnaswamy, Bengaluru", isIpl: true },
+            { date: "2026-04-28", t1: "Delhi Capitals", t1Short: "DC", t2: "Sunrisers Hyderabad", t2Short: "SRH", venue: "Arun Jaitley Stadium, Delhi", isIpl: true },
+            { date: "2026-04-28", t1: "Gujarat Titans", t1Short: "GT", t2: "Rajasthan Royals", t2Short: "RR", venue: "Narendra Modi Stadium, Ahmedabad", isIpl: true },
+            { date: "2026-04-29", t1: "Punjab Kings", t1Short: "PBKS", t2: "Lucknow Super Giants", t2Short: "LSG", venue: "PCA Stadium, Mohali", isIpl: true },
+            { date: "2026-04-30", t1: "Chennai Super Kings", t1Short: "CSK", t2: "Kolkata Knight Riders", t2Short: "KKR", venue: "MA Chidambaram, Chennai", isIpl: true },
+            { date: "2026-05-01", t1: "Mumbai Indians", t1Short: "MI", t2: "Royal Challengers Bengaluru", t2Short: "RCB", venue: "Wankhede Stadium, Mumbai", isIpl: true },
+            { date: "2026-05-02", t1: "Rajasthan Royals", t1Short: "RR", t2: "Delhi Capitals", t2Short: "DC", venue: "Sawai Mansingh, Jaipur", isIpl: true },
+            { date: "2026-05-03", t1: "Sunrisers Hyderabad", t1Short: "SRH", t2: "Gujarat Titans", t2Short: "GT", venue: "Rajiv Gandhi Stadium, Hyderabad", isIpl: true }
         ];
 
-        const mockDeepData = {
-            bbb: [
-                { ball: "18.2", type: "wicket", runs: "W", desc: "Bumrah to Dube, OUT! Caught at deep mid-wicket. A massive blow for CSK!" },
-                { ball: "18.1", type: "six", runs: "6", desc: "Bumrah to Dube, SIX! Smashed straight down the ground." },
-                { ball: "18.0", type: "normal", runs: "1", desc: "Coetzee to Jadeja, 1 run, pushed to long off." },
-                { ball: "17.5", type: "four", runs: "4", desc: "Coetzee to Jadeja, FOUR! Cut away past point." }
-            ],
-            squads: {
-                team1: ["R Gaikwad (C)", "R Ravindra", "A Rahane", "S Dube", "R Jadeja", "MS Dhoni (WK)"],
-                team2: ["R Sharma", "I Kishan (WK)", "S Yadav", "H Pandya (C)", "T David", "J Bumrah"]
-            },
-            fancy: {
-                matchOdds: { team1: "1.85", team2: "1.95" },
-                session: { title: "20 Over Runs CSK", yes: "205", no: "203" },
-                lambi: { title: "Fall of 5th Wicket", yes: "192", no: "190" }
-            }
-        };
+        // --- 2. DYNAMIC DATE ENGINE ---
+        // Get today's real date formatted as YYYY-MM-DD
+        const todayDateObj = new Date();
+        const todayString = todayDateObj.toISOString().split('T')[0]; 
+        document.getElementById('current-date-display').innerText = `Current Date: ${todayDateObj.toDateString()}`;
 
-        // --- 2. STATE MANAGEMENT ---
-        let currentFilter = 'live'; // live, today, upcoming, past
+        let currentFilter = 'today'; // Default tab
 
         function setFilter(filter) {
             currentFilter = filter;
@@ -211,7 +153,13 @@
             renderUI();
         }
 
-        // --- 3. UI RENDERING ---
+        // Generate fake scores for past/live matches just for the visual demo
+        function generateMockScores(matchCategory) {
+            if (matchCategory === 'upcoming') return { t1Score: "", t1Overs: "", t2Score: "", t2Overs: "", status: "Match scheduled to begin at 19:30 IST" };
+            if (matchCategory === 'past') return { t1Score: "210/5", t1Overs: "20.0", t2Score: "198/8", t2Overs: "20.0", status: "Team 1 won by 12 runs" };
+            return { t1Score: "165/3", t1Overs: "16.4", t2Score: "", t2Overs: "", status: "Live: Team 1 elected to bat first" }; // Today/Live
+        }
+
         function calculateCRR(runsStr, oversStr) {
             if (!runsStr || !oversStr) return "0.00";
             const runs = parseInt(runsStr.split('/')[0]);
@@ -220,130 +168,133 @@
             return overs > 0 ? (runs / overs).toFixed(2) : "0.00";
         }
 
+        // --- 3. UI RENDERING ---
         function renderUI() {
             const grid = document.getElementById('matches-grid');
-            const isIplOnly = document.getElementById('iplToggle').checked;
             grid.innerHTML = '';
 
-            let displayMatches = mockMatches.filter(m => {
-                // Time filter
-                if (currentFilter === 'live' && m.type !== 'live') return false;
-                if (currentFilter === 'today' && (m.date !== 'Today' || m.type === 'past')) return false;
-                if (currentFilter === 'upcoming' && m.type !== 'upcoming') return false;
-                if (currentFilter === 'past' && m.type !== 'past') return false;
-                
-                // IPL filter
-                if (isIplOnly && !m.isIpl) return false;
+            let matchesFound = false;
 
-                return true;
-            });
+            matchSchedule.forEach((match, index) => {
+                // Determine category dynamically based on the date
+                let category = '';
+                if (match.date < todayString) category = 'past';
+                else if (match.date === todayString) category = 'today';
+                else category = 'upcoming';
 
-            if (displayMatches.length === 0) {
-                grid.innerHTML = `<div style="text-align:center; padding: 3rem; color: #64748b; grid-column: 1/-1;">No matches found for these filters.</div>`;
-                return;
-            }
+                // Filter logic
+                if (currentFilter !== category) return;
+                matchesFound = true;
 
-            displayMatches.forEach(match => {
-                const isLive = match.type === 'live';
-                const t1CRR = calculateCRR(match.t1Score, match.t1Overs);
-                const t2CRR = calculateCRR(match.t2Score, match.t2Overs);
+                const isLive = category === 'today';
+                const scores = generateMockScores(category);
+                const t1CRR = calculateCRR(scores.t1Score, scores.t1Overs);
+                const t2CRR = calculateCRR(scores.t2Score, scores.t2Overs);
+
+                // Inline Fancy Odds Data
+                const matchOddsBack = (Math.random() * (2.0 - 1.5) + 1.5).toFixed(2);
+                const matchOddsLay = (parseFloat(matchOddsBack) + 0.05).toFixed(2);
+                const sessionYes = Math.floor(Math.random() * (55 - 45 + 1)) + 45;
+                const lambiYes = Math.floor(Math.random() * (190 - 160 + 1)) + 160;
 
                 const cardHTML = `
-                    <div class="match-card ${isLive ? 'live' : ''} ${match.isIpl ? 'ipl' : ''}">
+                    <div class="match-card ${isLive ? 'live' : 'ipl'}">
                         <div class="card-header">
-                            <span class="badge ${match.isIpl ? 'ipl' : ''}">${match.isIpl ? 'IPL T20' : 'INTL'}</span>
+                            <span class="badge ipl">IPL 2026</span>
                             <span class="badge ${isLive ? 'live' : ''}">${isLive ? 'LIVE' : match.date}</span>
                         </div>
 
                         <div class="team-box">
                             <div class="team-name">${match.t1Short}</div>
                             <div class="score-box">
-                                <div class="runs">${match.t1Score || '-'}</div>
-                                ${match.t1Overs ? `<div class="overs">(${match.t1Overs} ov)</div><div class="crr">CRR: ${t1CRR}</div>` : ''}
+                                <div class="runs">${scores.t1Score || '-'}</div>
+                                ${scores.t1Overs ? `<div class="overs">(${scores.t1Overs} ov)</div><div class="crr">CRR: ${t1CRR}</div>` : ''}
                             </div>
                         </div>
 
                         <div class="team-box">
                             <div class="team-name">${match.t2Short}</div>
                             <div class="score-box">
-                                <div class="runs">${match.t2Score || '-'}</div>
-                                ${match.t2Overs ? `<div class="overs">(${match.t2Overs} ov)</div><div class="crr">CRR: ${t2CRR}</div>` : ''}
+                                <div class="runs">${scores.t2Score || '-'}</div>
+                                ${scores.t2Overs ? `<div class="overs">(${scores.t2Overs} ov)</div><div class="crr">CRR: ${t2CRR}</div>` : ''}
                             </div>
                         </div>
 
-                        <div class="match-status">${match.status}</div>
+                        <div class="match-status">${scores.status} • ${match.venue}</div>
+
+                        <div class="fancy-section">
+                            <div class="fancy-header">
+                                <span>Market</span>
+                                <span>No (Lay) &nbsp;&nbsp;&nbsp; Yes (Back)</span>
+                            </div>
+                            
+                            <div class="fancy-row">
+                                <span>Match Winner (${match.t1Short})</span>
+                                <div class="fancy-odds">
+                                    <div class="odds-box lay">${matchOddsLay}</div>
+                                    <div class="odds-box back">${matchOddsBack}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="fancy-row">
+                                <span>6 Over Session (${match.t1Short})</span>
+                                <div class="fancy-odds">
+                                    <div class="odds-box lay">${sessionYes - 1}</div>
+                                    <div class="odds-box back">${sessionYes}</div>
+                                </div>
+                            </div>
+
+                            <div class="fancy-row">
+                                <span>20 Over Lambi (${match.t1Short})</span>
+                                <div class="fancy-odds">
+                                    <div class="odds-box lay">${lambiYes - 2}</div>
+                                    <div class="odds-box back">${lambiYes}</div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="actions">
-                            <button class="btn btn-outline" onclick="openModal('bbb', '${match.id}')">🏏 Ball-by-Ball</button>
-                            <button class="btn btn-outline" onclick="openModal('squads', '${match.id}')">👥 Squads</button>
-                            <button class="btn btn-fancy" onclick="openModal('fancy', '${match.id}')">💰 Fancy Odds & Markets</button>
+                            <button class="btn" onclick="openModal('bbb', '${match.t1Short} vs ${match.t2Short}')">🏏 Ball-by-Ball</button>
+                            <button class="btn" onclick="openModal('squads', '${match.t1Short} vs ${match.t2Short}')">👥 View Squads</button>
                         </div>
                     </div>
                 `;
                 grid.insertAdjacentHTML('beforeend', cardHTML);
             });
+
+            if (!matchesFound) {
+                grid.innerHTML = `<div style="text-align:center; padding: 3rem; color: #64748b; grid-column: 1/-1;">No ${currentFilter} matches scheduled.</div>`;
+            }
         }
 
-        // --- 4. MODAL INTERACTIONS ---
-        function openModal(type, matchId) {
+        // --- 4. MODALS (Ball by Ball & Squads) ---
+        function openModal(type, titleText) {
             const modal = document.getElementById('modal');
             const title = document.getElementById('modal-title');
             const body = document.getElementById('modal-body');
             
             modal.style.display = 'flex';
-            body.innerHTML = ''; // Clear previous
+            title.innerText = titleText;
 
             if (type === 'bbb') {
-                title.innerText = "Live Commentary";
-                mockDeepData.bbb.forEach(ball => {
-                    body.innerHTML += `
-                        <div class="bbb-row">
-                            <div class="ball-badge ${ball.type}">${ball.runs}</div>
-                            <div>
-                                <strong style="color:var(--text-light); font-size:0.8rem;">Ov ${ball.ball}</strong>
-                                <p style="font-size:0.9rem; margin-top:0.25rem;">${ball.desc}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            } 
-            else if (type === 'squads') {
-                title.innerText = "Playing XI / Squads";
                 body.innerHTML = `
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div>
-                            <h3 style="margin-bottom:0.5rem; color:var(--primary);">Team 1</h3>
-                            ${mockDeepData.squads.team1.map(p => `<div style="padding:0.5rem; background:white; margin-bottom:0.25rem; border-radius:4px; font-size:0.9rem;">${p}</div>`).join('')}
-                        </div>
-                        <div>
-                            <h3 style="margin-bottom:0.5rem; color:var(--primary);">Team 2</h3>
-                            ${mockDeepData.squads.team2.map(p => `<div style="padding:0.5rem; background:white; margin-bottom:0.25rem; border-radius:4px; font-size:0.9rem;">${p}</div>`).join('')}
-                        </div>
+                    <h3 style="margin-bottom:1rem;">Live Commentary</h3>
+                    <div style="background:white; padding:1rem; border-radius:8px; border-left: 4px solid var(--live); margin-bottom:0.5rem;">
+                        <strong>16.4</strong> • <span style="color:var(--live); font-weight:bold;">WICKET!</span> Caught at deep mid-wicket.
+                    </div>
+                    <div style="background:white; padding:1rem; border-radius:8px; border-left: 4px solid var(--win); margin-bottom:0.5rem;">
+                        <strong>16.3</strong> • <span style="color:var(--win); font-weight:bold;">SIX!</span> Smashed over long-on.
+                    </div>
+                    <div style="background:white; padding:1rem; border-radius:8px; border-left: 4px solid var(--secondary); margin-bottom:0.5rem;">
+                        <strong>16.2</strong> • <span style="color:var(--secondary); font-weight:bold;">FOUR!</span> Cut away past point.
                     </div>
                 `;
-            }
-            else if (type === 'fancy') {
-                title.innerText = "Fancy Odds & Market Data";
-                const odds = mockDeepData.fancy;
+            } else if (type === 'squads') {
                 body.innerHTML = `
-                    <h3 style="margin-bottom: 1rem; text-align:center;">Match Winner</h3>
-                    <div class="odds-grid" style="margin-bottom: 1.5rem;">
-                        <div class="odds-card"><h4>Team 1 (Back)</h4><div class="odds-values back">${odds.matchOdds.team1}</div></div>
-                        <div class="odds-card"><h4>Team 2 (Back)</h4><div class="odds-values lay">${odds.matchOdds.team2}</div></div>
+                    <div style="text-align:center; padding: 2rem; color: var(--text-light);">
+                        <h3>Playing XI</h3>
+                        <p style="margin-top:0.5rem;">Squad details will populate here once the toss is completed and line-ups are announced.</p>
                     </div>
-
-                    <h3 style="margin-bottom: 1rem; text-align:center;">Session Runs</h3>
-                    <div class="odds-grid">
-                        <div class="odds-card">
-                            <h4>${odds.session.title}</h4>
-                            <div class="odds-values"><span class="lay">NO: ${odds.session.no}</span><span class="back">YES: ${odds.session.yes}</span></div>
-                        </div>
-                        <div class="odds-card">
-                            <h4>${odds.lambi.title}</h4>
-                            <div class="odds-values"><span class="lay">NO: ${odds.lambi.no}</span><span class="back">YES: ${odds.lambi.yes}</span></div>
-                        </div>
-                    </div>
-                    <p style="text-align:center; font-size:0.75rem; color:var(--text-light); margin-top:1.5rem;">Odds are mock data for demonstration purposes.</p>
                 `;
             }
         }
@@ -352,7 +303,7 @@
             if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
         }
 
-        // Init App
+        // Initialize App
         renderUI();
     </script>
 </body>
