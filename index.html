@@ -3,373 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IPL Match Tracker | CricketData</title>
+    <title>Ultimate IPL Dashboard</title>
     <style>
         :root {
-            --primary: #1e1b4b; /* Deep Indigo for IPL feel */
-            --secondary: #fbbf24; /* Amber accent */
-            --bg: #f8fafc;
+            --primary: #0f172a;
+            --secondary: #38bdf8;
+            --bg: #f1f5f9;
             --card-bg: #ffffff;
-            --text-dark: #0f172a;
+            --text-dark: #1e293b;
             --text-light: #64748b;
-            --live-color: #ef4444;
+            --live: #ef4444;
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-dark);
-        }
+        body { background-color: var(--bg); color: var(--text-dark); }
 
         header {
             background-color: var(--primary);
             color: white;
-            padding: 1.5rem 1rem;
-            text-align: center;
+            padding: 1rem;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--secondary);
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
         }
 
-        /* Tab Navigation */
+        h1 { font-size: 1.5rem; color: var(--secondary); margin-bottom: 1rem; }
+
+        /* Navigation Tabs */
         .tabs {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
-            margin-top: 1rem;
             overflow-x: auto;
             padding-bottom: 0.5rem;
         }
 
         .tab-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            padding: 0.5rem 1.25rem;
+            padding: 0.5rem 1rem;
             border-radius: 20px;
             font-weight: 600;
-            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: 0.2s;
             white-space: nowrap;
         }
 
-        .tab-btn.active {
-            background: var(--secondary);
-            color: var(--primary);
-            border-color: var(--secondary);
-        }
+        .tab-btn.active { background: var(--secondary); color: var(--primary); }
 
-        /* Controls / Filters */
-        .controls {
-            max-width: 1200px;
-            margin: 1rem auto 0;
-            padding: 0 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .container { max-width: 1000px; margin: 1.5rem auto; padding: 0 1rem; }
 
-        .filter-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 1rem auto;
-            padding: 0 1rem 2rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.25rem;
-        }
+        /* Match Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
 
         .match-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 1.25rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            display: flex;
-            flex-direction: column;
-            border-top: 5px solid var(--text-light);
-            transition: transform 0.2s;
-        }
-
-        .match-card.is-live {
-            border-top-color: var(--live-color);
-        }
-
-        .match-card.is-ipl {
-            border-top-color: var(--secondary);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 0.75rem;
-            background: #f1f5f9;
-            color: var(--text-dark);
-            align-self: flex-start;
-        }
-
-        .is-live .status-badge {
-            background: #fee2e2;
-            color: var(--live-color);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        .match-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin: 0 0 0.5rem 0;
-            line-height: 1.4;
-        }
-
-        .score-box {
-            background-color: var(--bg);
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 0.75rem 0;
-        }
-
-        .team-score {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .team-score:last-child {
-            margin-bottom: 0;
-        }
-
-        .match-info {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px dashed #e2e8f0;
-            line-height: 1.6;
-        }
-
-        .message-box {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-light);
-            font-size: 1.1rem;
-            grid-column: 1 / -1;
             background: var(--card-bg);
             border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--text-light);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Toggle Switch CSS */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 46px;
-            height: 24px;
+        .match-card.live { border-top-color: var(--live); }
+
+        .match-header { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.85rem; font-weight: bold; color: var(--text-light); }
+        .live-badge { color: var(--live); animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .team-row { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .score { color: var(--secondary); }
+        
+        .match-info { font-size: 0.85rem; color: var(--text-light); margin: 1rem 0; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
+
+        /* Action Buttons */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: auto; }
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--primary);
+            transition: 0.2s;
         }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1; transition: .4s; border-radius: 34px;
+        .action-btn:hover { background: #e2e8f0; }
+        .action-btn.fancy { grid-column: span 2; background: #fffbeb; border-color: #fcd34d; color: #d97706; }
+
+        /* Modal / Pop-up Styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end; /* Slides up from bottom on mobile */
         }
-        .slider:before {
-            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-            background-color: white; transition: .4s; border-radius: 50%;
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            border-radius: 20px 20px 0 0;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease-out;
         }
-        input:checked + .slider { background-color: var(--secondary); }
-        input:checked + .slider:before { transform: translateX(22px); }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1rem; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
+        
+        .modal-body { overflow-y: auto; flex: 1; }
+        
+        .loader { text-align: center; padding: 2rem; color: var(--text-light); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🏆 IPL & Global Cricket Tracker</h1>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="setTab('live')">🔴 Live Now</button>
-            <button class="tab-btn" onclick="setTab('upcoming')">🗓️ Upcoming</button>
-            <button class="tab-btn" onclick="setTab('past')">⏪ Past Results</button>
+        <div class="header-content">
+            <h1>🏆 Ultimate IPL Dashboard</h1>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="loadMatches('live')">🔴 Live Today</button>
+                <button class="tab-btn" onclick="loadMatches('upcoming')">🗓️ Upcoming</button>
+                <button class="tab-btn" onclick="loadMatches('past')">⏪ Results</button>
+            </div>
         </div>
     </header>
 
-    <div class="controls">
-        <label class="filter-label">
-            <span id="ipl-toggle-text">Show IPL Matches Only</span>
-            <label class="switch">
-                <input type="checkbox" id="iplToggle" onchange="renderMatches()">
-                <span class="slider"></span>
-            </label>
-        </label>
-        <span id="last-updated" style="font-size: 0.8rem; color: var(--text-light);"></span>
+    <div class="container">
+        <div id="main-loader" class="loader">Fetching IPL data...</div>
+        <div id="matches-grid" class="grid"></div>
     </div>
 
-    <div class="container">
-        <div id="matches-grid" class="grid">
-            <div class="message-box">Loading cricket data...</div>
+    <div id="data-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modal-title">Match Data</h2>
+                <button class="close-btn" onclick="document.getElementById('data-modal').style.display='none'">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body">
+                </div>
         </div>
     </div>
 
     <script>
-        // TEMPORARY: API Key directly in file for browser-based prototyping
         const API_KEY = '02be0af2-19ea-4548-9a8e-b8dd77779d7c'; 
-        
-        // cricketdata.org matches endpoint
-        const API_URL = `https://api.cricketdata.org/v1/matches?apikey=${API_KEY}&offset=0`;
+        let currentMatches = [];
 
-        let allMatches = [];
-        let currentTab = 'live'; // 'live', 'upcoming', 'past'
-
-        const matchesGrid = document.getElementById('matches-grid');
-        const iplToggle = document.getElementById('iplToggle');
-        const updatedText = document.getElementById('last-updated');
-
-        async function fetchMatches() {
-            try {
-                const response = await fetch(API_URL);
-                const result = await response.json();
-
-                if (result.status !== "success") {
-                    throw new Error(result.reason || "Failed to fetch from cricketdata.org");
-                }
-
-                allMatches = result.data;
-                
-                const now = new Date();
-                updatedText.innerText = `Last updated: ${now.toLocaleTimeString()}`;
-                
-                renderMatches();
-            } catch (error) {
-                matchesGrid.innerHTML = `<div class="message-box" style="color: #ef4444;">Error: ${error.message}</div>`;
-            }
-        }
-
-        function setTab(tabName) {
-            currentTab = tabName;
-            
-            // Update active styling on buttons
+        // --- 1. CORE MATCH DATA FETCHING ---
+        async function loadMatches(type) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            renderMatches();
+            const grid = document.getElementById('matches-grid');
+            const loader = document.getElementById('main-loader');
+            
+            grid.innerHTML = '';
+            loader.style.display = 'block';
+
+            try {
+                // We use the general /matches endpoint to get past, present, and future
+                const response = await fetch(`https://api.cricketdata.org/v1/matches?apikey=${API_KEY}&offset=0`);
+                const result = await response.json();
+
+                if (result.status !== "success") throw new Error("API limits reached or failed to fetch.");
+
+                // Filter for IPL matches specifically
+                const iplMatches = result.data.filter(m => 
+                    m.name.toLowerCase().includes('ipl') || 
+                    (m.series && m.series.toLowerCase().includes('ipl'))
+                );
+
+                // Filter by requested type (Live, Upcoming, Past)
+                const filtered = iplMatches.filter(m => {
+                    if (type === 'live') return m.matchStarted && !m.matchEnded;
+                    if (type === 'upcoming') return !m.matchStarted;
+                    if (type === 'past') return m.matchEnded;
+                });
+
+                renderGrid(filtered, type);
+            } catch (error) {
+                loader.innerHTML = `<span style="color:red;">Error: ${error.message}</span>`;
+            }
         }
 
-        function renderMatches() {
-            matchesGrid.innerHTML = '';
-            const showIplOnly = iplToggle.checked;
+        function renderGrid(matches, type) {
+            document.getElementById('main-loader').style.display = 'none';
+            const grid = document.getElementById('matches-grid');
 
-            // Filter by Tab (Live, Upcoming, Past) and IPL toggle
-            let filteredMatches = allMatches.filter(match => {
-                // Determine IPL status based on name or series
-                const isIPL = match.name.toLowerCase().includes('ipl') || 
-                              match.name.toLowerCase().includes('indian premier league') ||
-                              (match.series && match.series.toLowerCase().includes('ipl'));
-
-                if (showIplOnly && !isIPL) return false;
-
-                // Match Status Logic
-                // cricketdata.org usually returns matchStarted boolean and matchEnded boolean
-                const isStarted = match.matchStarted;
-                const isEnded = match.matchEnded;
-                
-                if (currentTab === 'live') {
-                    return isStarted && !isEnded;
-                } else if (currentTab === 'upcoming') {
-                    return !isStarted;
-                } else if (currentTab === 'past') {
-                    return isEnded;
-                }
-                return true;
-            });
-
-            if (filteredMatches.length === 0) {
-                const iplText = showIplOnly ? " IPL" : "";
-                matchesGrid.innerHTML = `<div class="message-box">No ${currentTab}${iplText} matches found at the moment.</div>`;
+            if (matches.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:2rem;">No ${type} IPL matches found.</div>`;
                 return;
             }
 
-            filteredMatches.forEach(match => {
+            matches.forEach(match => {
                 const card = document.createElement('div');
-                const isIPL = match.name.toLowerCase().includes('ipl');
-                
-                card.className = `match-card ${currentTab === 'live' ? 'is-live' : ''} ${isIPL ? 'is-ipl' : ''}`;
+                card.className = `match-card ${type === 'live' ? 'live' : ''}`;
 
-                // Process Scores if available
-                let scoreHTML = '';
+                // Attempt to format scores if available from this endpoint
+                let t1Score = "", t2Score = "";
                 if (match.score && match.score.length > 0) {
-                    match.score.forEach(innings => {
-                        scoreHTML += `
-                            <div class="team-score">
-                                <span>${innings.inning}</span>
-                                <span>${innings.r}/${innings.w} <span style="font-size:0.8em; color:var(--text-light);">(${innings.o}v)</span></span>
-                            </div>
-                        `;
-                    });
-                } else if (currentTab === 'upcoming') {
-                    scoreHTML = `<div style="text-align:center; color:var(--text-light); font-size:0.9rem;">Match begins at scheduled time</div>`;
-                } else {
-                    scoreHTML = `<div style="text-align:center; color:var(--text-light); font-size:0.9rem;">Score data unavailable</div>`;
+                    t1Score = `${match.score[0].r}/${match.score[0].w} (${match.score[0].o})`;
+                    if (match.score.length > 1) t2Score = `${match.score[1].r}/${match.score[1].w} (${match.score[1].o})`;
                 }
 
-                // Format Date
-                const matchDate = match.dateTimeGMT ? new Date(match.dateTimeGMT).toLocaleString() : match.date;
-
                 card.innerHTML = `
-                    <div class="status-badge">${match.status}</div>
-                    <h3 class="match-title">${match.name}</h3>
+                    <div class="match-header">
+                        <span>${match.matchType.toUpperCase()} • ${new Date(match.dateTimeGMT).toLocaleDateString()}</span>
+                        ${type === 'live' ? '<span class="live-badge">LIVE NOW</span>' : `<span>${match.status}</span>`}
+                    </div>
                     
-                    <div class="score-box">
-                        ${scoreHTML}
+                    <div class="team-row">
+                        <span>${match.teams[0]}</span>
+                        <span class="score">${t1Score}</span>
+                    </div>
+                    <div class="team-row">
+                        <span>${match.teams[1]}</span>
+                        <span class="score">${t2Score}</span>
                     </div>
 
                     <div class="match-info">
-                        🏟️ <strong>Venue:</strong> ${match.venue || 'TBC'}<br>
-                        🗓️ <strong>Date:</strong> ${matchDate}
+                        🏟️ ${match.venue || 'Venue TBC'} <br>
+                        ${match.status}
+                    </div>
+
+                    <div class="action-grid">
+                        <button class="action-btn" onclick="fetchDeepData('${match.id}', 'bbb')">🏏 Ball-by-Ball</button>
+                        <button class="action-btn" onclick="fetchDeepData('${match.id}', 'squad')">👥 Playing XI / Squads</button>
+                        <button class="action-btn fancy" onclick="showFancyAlert()">💰 View Fancy & Odds</button>
                     </div>
                 `;
-
-                matchesGrid.appendChild(card);
+                grid.appendChild(card);
             });
         }
 
-        // Fetch data immediately on load
-        fetchMatches();
+        // --- 2. DEEP DATA FETCHING (MODALS) ---
+        async function fetchDeepData(matchId, dataType) {
+            const modal = document.getElementById('data-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
 
-        // Refresh data every 60 seconds automatically
-        setInterval(fetchMatches, 60000); 
+            modal.style.display = 'flex';
+            modalBody.innerHTML = '<div class="loader">Fetching data from API...</div>';
+
+            try {
+                let url = '';
+                if (dataType === 'bbb') {
+                    modalTitle.innerText = "Live Commentary & Ball-by-Ball";
+                    url = `https://api.cricketdata.org/v1/match_bbb?apikey=${API_KEY}&id=${matchId}`;
+                } else if (dataType === 'squad') {
+                    modalTitle.innerText = "Team Squads & Player Info";
+                    url = `https://api.cricketdata.org/v1/match_squad?apikey=${API_KEY}&id=${matchId}`;
+                }
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.status !== "success") throw new Error("This feature requires a higher API tier or the match data is unavailable yet.");
+
+                // Render the Specific Data
+                if (dataType === 'bbb') renderBallByBall(result.data, modalBody);
+                if (dataType === 'squad') renderSquads(result.data, modalBody);
+
+            } catch (error) {
+                modalBody.innerHTML = `<div class="loader" style="color:red;">${error.message}</div>`;
+            }
+        }
+
+        // Parse and render Ball by Ball data
+        function renderBallByBall(data, container) {
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div style="padding:1rem;">No commentary available for this match yet.</div>';
+                return;
+            }
+            // Just displaying the last 10 balls for performance
+            let html = `<h3>Recent Deliveries</h3><div style="margin-top:1rem;">`;
+            const recentBalls = data.slice(0, 15); 
+            
+            recentBalls.forEach(ball => {
+                html += `
+                    <div style="padding: 1rem; border-bottom: 1px solid #eee; background: #f8fafc; margin-bottom: 0.5rem; border-radius: 8px;">
+                        <span style="font-weight:bold; color:var(--secondary);">Over ${ball.over}</span> • 
+                        <span style="font-weight:bold;">${ball.bowler} to ${ball.batsman}</span><br>
+                        <span style="display:inline-block; margin-top:0.5rem;">${ball.score === 0 ? 'Dot ball' : ball.score + ' Runs'} | ${ball.comment || 'No commentary provided.'}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html + "</div>";
+        }
+
+        // Parse and render Squads
+        function renderSquads(data, container) {
+            if (!data || data.length < 2) {
+                container.innerHTML = '<div style="padding:1rem;">Squads not announced yet.</div>';
+                return;
+            }
+            
+            let html = '';
+            data.forEach(team => {
+                html += `<h3 style="margin: 1rem 0 0.5rem; color:var(--primary);">${team.teamName}</h3>`;
+                html += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">`;
+                team.players.forEach(player => {
+                    html += `<div style="background:#f1f5f9; padding:0.5rem; border-radius:6px; font-size:0.9rem;">
+                                <strong>${player.name}</strong><br>
+                                <span style="font-size:0.75rem; color:var(--text-light);">${player.role || 'Player'}</span>
+                             </div>`;
+                });
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- 3. UTILITIES ---
+        function showFancyAlert() {
+            alert("Note: To integrate Session Runs, Lambi, and Fancy Odds, you will need to connect a secondary Sports Betting API endpoint (like BetsAPI) as cricketdata.org only provides official match statistics.");
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'data-modal') {
+                document.getElementById('data-modal').style.display = 'none';
+            }
+        }
+
+        // Initialize Live matches on load (simulating a click on the 'Live' tab)
+        window.onload = () => loadMatches('live');
+        
+        // Auto-refresh main grid every 60 seconds
+        setInterval(() => {
+            const activeTab = document.querySelector('.tab-btn.active').innerText.toLowerCase();
+            if (activeTab.includes('live')) loadMatches('live');
+        }, 60000);
+
     </script>
 </body>
 </html>
