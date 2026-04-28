@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IPL Match Tracker | CricketData</title>
+    <style>
+        :root {
+            --primary: #1e1b4b; /* Deep Indigo for IPL feel */
+            --secondary: #fbbf24; /* Amber accent */
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --live-color: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-dark);
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--secondary);
+            color: var(--primary);
+            border-color: var(--secondary);
+        }
+
+        /* Controls / Filters */
+        .controls {
+            max-width: 1200px;
+            margin: 1rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 0 1rem 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .match-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            border-top: 5px solid var(--text-light);
+            transition: transform 0.2s;
+        }
+
+        .match-card.is-live {
+            border-top-color: var(--live-color);
+        }
+
+        .match-card.is-ipl {
+            border-top-color: var(--secondary);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            background: #f1f5f9;
+            color: var(--text-dark);
+            align-self: flex-start;
+        }
+
+        .is-live .status-badge {
+            background: #fee2e2;
+            color: var(--live-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .match-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.4;
+        }
+
+        .score-box {
+            background-color: var(--bg);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.75rem 0;
+        }
+
+        .team-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .team-score:last-child {
+            margin-bottom: 0;
+        }
+
+        .match-info {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px dashed #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .message-box {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            grid-column: 1 / -1;
+            background: var(--card-bg);
+            border-radius: 12px;
+        }
+
+        /* Toggle Switch CSS */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--secondary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏆 IPL & Global Cricket Tracker</h1>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setTab('live')">🔴 Live Now</button>
+            <button class="tab-btn" onclick="setTab('upcoming')">🗓️ Upcoming</button>
+            <button class="tab-btn" onclick="setTab('past')">⏪ Past Results</button>
+        </div>
+    </header>
+
+    <div class="controls">
+        <label class="filter-label">
+            <span id="ipl-toggle-text">Show IPL Matches Only</span>
+            <label class="switch">
+                <input type="checkbox" id="iplToggle" onchange="renderMatches()">
+                <span class="slider"></span>
+            </label>
+        </label>
+        <span id="last-updated" style="font-size: 0.8rem; color: var(--text-light);"></span>
+    </div>
+
+    <div class="container">
+        <div id="matches-grid" class="grid">
+            <div class="message-box">Loading cricket data...</div>
+        </div>
+    </div>
+
+    <script>
+        // TEMPORARY: API Key directly in file for browser-based prototyping
+        const API_KEY = '02be0af2-19ea-4548-9a8e-b8dd77779d7c'; 
+        
+        // cricketdata.org matches endpoint
+        const API_URL = `https://api.cricketdata.org/v1/matches?apikey=${API_KEY}&offset=0`;
+
+        let allMatches = [];
+        let currentTab = 'live'; // 'live', 'upcoming', 'past'
+
+        const matchesGrid = document.getElementById('matches-grid');
+        const iplToggle = document.getElementById('iplToggle');
+        const updatedText = document.getElementById('last-updated');
+
+        async function fetchMatches() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+
+                if (result.status !== "success") {
+                    throw new Error(result.reason || "Failed to fetch from cricketdata.org");
+                }
+
+                allMatches = result.data;
+                
+                const now = new Date();
+                updatedText.innerText = `Last updated: ${now.toLocaleTimeString()}`;
+                
+                renderMatches();
+            } catch (error) {
+                matchesGrid.innerHTML = `<div class="message-box" style="color: #ef4444;">Error: ${error.message}</div>`;
+            }
+        }
+
+        function setTab(tabName) {
+            currentTab = tabName;
+            
+            // Update active styling on buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderMatches();
+        }
+
+        function renderMatches() {
+            matchesGrid.innerHTML = '';
+            const showIplOnly = iplToggle.checked;
+
+            // Filter by Tab (Live, Upcoming, Past) and IPL toggle
+            let filteredMatches = allMatches.filter(match => {
+                // Determine IPL status based on name or series
+                const isIPL = match.name.toLowerCase().includes('ipl') || 
+                              match.name.toLowerCase().includes('indian premier league') ||
+                              (match.series && match.series.toLowerCase().includes('ipl'));
+
+                if (showIplOnly && !isIPL) return false;
+
+                // Match Status Logic
+                // cricketdata.org usually returns matchStarted boolean and matchEnded boolean
+                const isStarted = match.matchStarted;
+                const isEnded = match.matchEnded;
+                
+                if (currentTab === 'live') {
+                    return isStarted && !isEnded;
+                } else if (currentTab === 'upcoming') {
+                    return !isStarted;
+                } else if (currentTab === 'past') {
+                    return isEnded;
+                }
+                return true;
+            });
+
+            if (filteredMatches.length === 0) {
+                const iplText = showIplOnly ? " IPL" : "";
+                matchesGrid.innerHTML = `<div class="message-box">No ${currentTab}${iplText} matches found at the moment.</div>`;
+                return;
+            }
+
+            filteredMatches.forEach(match => {
+                const card = document.createElement('div');
+                const isIPL = match.name.toLowerCase().includes('ipl');
+                
+                card.className = `match-card ${currentTab === 'live' ? 'is-live' : ''} ${isIPL ? 'is-ipl' : ''}`;
+
+                // Process Scores if available
+                let scoreHTML = '';
+                if (match.score && match.score.length > 0) {
+                    match.score.forEach(innings => {
+                        scoreHTML += `
+                            <div class="team-score">
+                                <span>${innings.inning}</span>
+                                <span>${innings.r}/${innings.w} <span style="font-size:0.8em; color:var(--text-light);">(${innings.o}v)</span></span>
+                            </div>
+                        `;
+                    });
+                } else if (currentTab === 'upcoming') {
+                    scoreHTML = `<div style="text-align:center; color:var(--text-light); font-size:0.9rem;">Match begins at scheduled time</div>`;
+                } else {
+                    scoreHTML = `<div style="text-align:center; color:var(--text-light); font-size:0.9rem;">Score data unavailable</div>`;
+                }
+
+                // Format Date
+                const matchDate = match.dateTimeGMT ? new Date(match.dateTimeGMT).toLocaleString() : match.date;
+
+                card.innerHTML = `
+                    <div class="status-badge">${match.status}</div>
+                    <h3 class="match-title">${match.name}</h3>
+                    
+                    <div class="score-box">
+                        ${scoreHTML}
+                    </div>
+
+                    <div class="match-info">
+                        🏟️ <strong>Venue:</strong> ${match.venue || 'TBC'}<br>
+                        🗓️ <strong>Date:</strong> ${matchDate}
+                    </div>
+                `;
+
+                matchesGrid.appendChild(card);
+            });
+        }
+
+        // Fetch data immediately on load
+        fetchMatches();
+
+        // Refresh data every 60 seconds automatically
+        setInterval(fetchMatches, 60000); 
+    </script>
+</body>
+</html>
